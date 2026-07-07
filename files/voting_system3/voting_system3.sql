@@ -79,3 +79,18 @@ INSERT INTO positions (position_name) VALUES
 ('Treasurer'),
 ('Auditor'),
 ('Public Information Officer');
+
+
+INSERT INTO `candidates`
+(`position_id`, `first_name`, `last_name`, `photo`, `description`, `created_at`)
+VALUES
+(1, 'BongBong', 'Marcos', 'cand_1783417620_558.jpg', 'Good governance begins with responsible citizens.', NOW()),
+(1, 'Rodrigo', 'Duterte', 'cand_1783417708_825.jpg', 'Together, we build a stronger nation.', NOW()),
+(2, 'Leni', 'Robredo', 'cand_1783417789_936.jpg', 'Transparency today, trust tomorrow.', NOW()),
+(2, 'Robin', 'Padilla', 'cand_1783417825_217.jpg', 'Your voice matters. Your vote shapes the future.', NOW()),
+(3, 'Kiko', 'Pangilinan', 'cand_1783417955_419.jpg', 'Serve with integrity. Lead with purpose.', NOW()),
+(3, 'Tito', 'Sotto', 'cand_1783418182_514.jpg', 'A united community creates lasting progress.', NOW()),
+(5, 'Bato', 'Dela Rosa', 'cand_1783418221_916.jpg', 'Every citizen has the power to make a difference.', NOW()),
+(5, 'Bam', 'Aquino', 'cand_1783418292_362.jpg', 'Honesty in leadership inspires confidence in the people.', NOW()),
+(4, 'Pablo', 'Escobar', 'cand_1783418448_588.jpg', 'Stronger communities start with active participation.', NOW()),
+(4, 'Al', 'Pacino', 'cand_1783418537_120.jpg', 'Progress is achieved through cooperation and accountability.', NOW());
