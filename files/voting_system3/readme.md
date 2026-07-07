@@ -104,4 +104,4 @@ voting_system3/
 3. Secretary
 4. Treasurer
 5. Auditor
-6. Public Information Officer
+
