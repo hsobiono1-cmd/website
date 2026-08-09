@@ -44,11 +44,6 @@ XAMPP on Windows handles this automatically.
 - **Password:** `$$Drowranger^^55`
 
 
-> ⚠️ Change the admin password after first login via phpMyAdmin!
-> Run: `UPDATE admins SET password = '$2y$10$...' WHERE username = 'admin';`
-> Generate hash with: `echo password_hash('yourpassword', PASSWORD_DEFAULT);`
-
----
 
 ## System Structure
 ```
