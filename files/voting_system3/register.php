@@ -1,5 +1,7 @@
 <?php
+
 session_start();
+
 require_once 'includes/db.php';
 
 if (isset($_SESSION['voter_id'])) {
@@ -7,62 +9,196 @@ if (isset($_SESSION['voter_id'])) {
     exit;
 }
 
+
 $error = '';
 $success = '';
+
 $form = [
-    'first_name' => '', 'last_name' => '', 'voter_id' => '',
-    'birthdate' => '', 'address' => '', 'username' => ''
+    'first_name' => '',
+    'last_name' => '',
+    'voter_id' => '',
+    'birthdate' => '',
+    'address' => '',
+    'username' => ''
 ];
 
+/**
+ * Password validation
+ * Rules:
+ * - 12 to 15 characters
+ * - At least 1 uppercase letter
+ * - At least 1 lowercase letter
+ * - At least 1 number
+ * - Letters and numbers only
+ * - Passwords must match
+ */
+function validate_password($password, $confirm)
+{
+    if (strlen($password) < 12) {
+        return 'Password must be at least 12 characters long.';
+    }
+
+    if (strlen($password) > 15) {
+        return 'Password must not exceed 15 characters.';
+    }
+
+    if (!preg_match('/[A-Z]/', $password)) {
+        return 'Password must contain at least 1 uppercase letter.';
+    }
+
+    if (!preg_match('/[a-z]/', $password)) {
+        return 'Password must contain at least 1 lowercase letter.';
+    }
+
+    if (!preg_match('/[0-9]/', $password)) {
+        return 'Password must contain at least 1 number.';
+    }
+
+    if (!preg_match('/^[A-Za-z0-9]+$/', $password)) {
+        return 'Password can only contain letters and numbers. No spaces or special characters are allowed.';
+    }
+
+    if ($password !== $confirm) {
+        return 'Passwords do not match.';
+    }
+
+    return '';
+}
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $first_name = trim($_POST['first_name'] ?? '');
     $last_name  = trim($_POST['last_name'] ?? '');
     $voter_id   = trim($_POST['voter_id'] ?? '');
     $birthdate  = trim($_POST['birthdate'] ?? '');
     $address    = trim($_POST['address'] ?? '');
     $username   = trim($_POST['username'] ?? '');
-    $password   = $_POST['password'] ?? '';
-    $confirm    = $_POST['confirm_password'] ?? '';
 
-    $form = compact('first_name','last_name','voter_id','birthdate','address','username');
+    $password = $_POST['password'] ?? '';
+    $confirm  = $_POST['confirm_password'] ?? '';
 
-    if (!$first_name || !$last_name || !$voter_id || !$birthdate || !$address || !$username || !$password) {
+    $form = compact(
+        'first_name',
+        'last_name',
+        'voter_id',
+        'birthdate',
+        'address',
+        'username'
+    );
+
+
+    /* Check required fields */
+    if (
+        !$first_name ||
+        !$last_name ||
+        !$voter_id ||
+        !$birthdate ||
+        !$address ||
+        !$username ||
+        !$password ||
+        !$confirm
+    ) {
+
         $error = 'All fields are required.';
-    } elseif ($password !== $confirm) {
-        $error = 'Passwords do not match.';
-    } elseif (strlen($password) < 6) {
-        $error = 'Password must be at least 6 characters.';
+
     } else {
-        // Check duplicate voter_id
-        $stmt = mysqli_prepare($conn, "SELECT id FROM voters WHERE voter_id = ?");
-        mysqli_stmt_bind_param($stmt, 's', $voter_id);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_store_result($stmt);
-        if (mysqli_stmt_num_rows($stmt) > 0) {
-            $error = 'Voter ID already registered.';
+
+        /* Password validation */
+        $password_error = validate_password($password, $confirm);
+
+        if ($password_error) {
+
+            $error = $password_error;
+
         } else {
-            mysqli_stmt_close($stmt);
-            // Check duplicate username
-            $stmt = mysqli_prepare($conn, "SELECT id FROM voters WHERE username = ?");
-            mysqli_stmt_bind_param($stmt, 's', $username);
+
+            /* Check duplicate Voter ID */
+            $stmt = mysqli_prepare(
+                $conn,
+                "SELECT id FROM voters WHERE voter_id = ?"
+            );
+
+            mysqli_stmt_bind_param($stmt, 's', $voter_id);
             mysqli_stmt_execute($stmt);
             mysqli_stmt_store_result($stmt);
+
             if (mysqli_stmt_num_rows($stmt) > 0) {
-                $error = 'Username already taken.';
-            } else {
+
+                $error = 'Voter ID already registered.';
                 mysqli_stmt_close($stmt);
-                $hashed = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = mysqli_prepare($conn, "INSERT INTO voters (voter_id, first_name, last_name, birthdate, address, username, password) VALUES (?,?,?,?,?,?,?)");
-                mysqli_stmt_bind_param($stmt, 'sssssss', $voter_id, $first_name, $last_name, $birthdate, $address, $username, $hashed);
-                if (mysqli_stmt_execute($stmt)) {
-                    $success = 'Registration successful! You can now login.';
-                    $form = ['first_name'=>'','last_name'=>'','voter_id'=>'','birthdate'=>'','address'=>'','username'=>''];
+
+            } else {
+
+                mysqli_stmt_close($stmt);
+
+                /* Check duplicate Username */
+                $stmt = mysqli_prepare(
+                    $conn,
+                    "SELECT id FROM voters WHERE username = ?"
+                );
+
+                mysqli_stmt_bind_param($stmt, 's', $username);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_store_result($stmt);
+
+                if (mysqli_stmt_num_rows($stmt) > 0) {
+
+                    $error = 'Username already taken.';
+                    mysqli_stmt_close($stmt);
+
                 } else {
-                    $error = 'Registration failed. Please try again.';
+
+                    mysqli_stmt_close($stmt);
+
+                    /* Hash password */
+                    $hashed = password_hash(
+                        $password,
+                        PASSWORD_DEFAULT
+                    );
+
+                    /* Insert voter */
+                    $stmt = mysqli_prepare(
+                        $conn,
+                        "INSERT INTO voters 
+                        (voter_id, first_name, last_name, birthdate, address, username, password)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)"
+                    );
+
+                    mysqli_stmt_bind_param(
+                        $stmt,
+                        'sssssss',
+                        $voter_id,
+                        $first_name,
+                        $last_name,
+                        $birthdate,
+                        $address,
+                        $username,
+                        $hashed
+                    );
+
+                    if (mysqli_stmt_execute($stmt)) {
+
+                        $success = 'Registration successful! You can now login.';
+
+                        $form = [
+                            'first_name' => '',
+                            'last_name' => '',
+                            'voter_id' => '',
+                            'birthdate' => '',
+                            'address' => '',
+                            'username' => ''
+                        ];
+
+                    } else {
+
+                        $error = 'Registration failed. Please try again.';
+                    }
+
+                    mysqli_stmt_close($stmt);
                 }
             }
         }
-        mysqli_stmt_close($stmt);
     }
 }
 ?>
@@ -144,3 +280,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 </body>
 </html>
+
