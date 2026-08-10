@@ -41,7 +41,7 @@ XAMPP on Windows handles this automatically.
 
 ## Default Admin Login
 - **Username:** `admin`
-- **Password:** `password`
+- **Password:** `$$Drowranger^^55`
 
 > ⚠️ Change the admin password after first login via phpMyAdmin!
 > Run: `UPDATE admins SET password = '$2y$10$...' WHERE username = 'admin';`
