@@ -70,7 +70,7 @@ INSERT INTO election_status (status) VALUES ('inactive');
 -- Insert default admin (password: admin123)
 INSERT INTO admins (username, password)
 VALUES 
-('admin', '$2y$10$sXf8Nmp15c2KdT50GTjp6eCrz.0SaFlAd2zpdoKN1LQnTXlDezR3u');
+('administrator50k', '$2y$10$sXf8Nmp15c2KdT50GTjp6eCrz.0SaFlAd2zpdoKN1LQnTXlDezR3u');
 
 -- Insert default positions
 INSERT INTO positions (position_name) VALUES 
