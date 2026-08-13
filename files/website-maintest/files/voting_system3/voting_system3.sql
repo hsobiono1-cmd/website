@@ -78,8 +78,8 @@ INSERT INTO positions (position_name) VALUES
 ('Vice President'),
 ('Secretary'),
 ('Treasurer'),
-('Auditor'),
-('Public Information Officer');
+('Auditor');
+
  
  INSERT INTO candidates
 (`position_id`, `first_name`, `last_name`, `photo`, `description`, `created_at`)
